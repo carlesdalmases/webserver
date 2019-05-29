@@ -114,8 +114,7 @@ router.get('/data/endesa', (req, res) => {
       break;
 
     case 's':
-      collection=null;
-      res.status(400).send('Bad Request');
+      collection=db.collection('endesa_stats');
       break;
 
     default:
