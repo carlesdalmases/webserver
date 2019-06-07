@@ -87,21 +87,43 @@ app.listen(port, () => {
 // q = "y":2019
 // ******************************
 // EXEMPLE
-// /data/endesa?t=d;q="y":2017
+// /data/endesa?t=d&q="y":2017
 
+// Consulta per un període de dates a la consulta per hores
+// /data/endesa?t=h&d1="data inici"&d2="data final"
 
 // EXPRESS ROUTER
 const router = express.Router();
-let q;
+let q=null;
+let p=null;
 router.get('/data/endesa', (req, res) => {
 
   //MongoDB query
-  let query=null;
   let collection=null;
 
   switch(req.query.t){
     case 'h':
       collection = db.collection('endesa_byHours');
+      if(req.query.d1 && req.query.d2){
+        q = {
+              date:{
+                $gte:new Date(((new Date(req.query.d1)).toISOString())),
+                $lte:new Date(((new Date(req.query.d2)).toISOString()))
+              }
+            };
+      }
+      break;
+    case 'hp':
+      collection = db.collection('endesa_byHours');
+      p = {projection:{dd:0,y:0,m:0,d:0}};
+      if(req.query.d1 && req.query.d2){
+        q = {
+              date:{
+                $gte:new Date(((new Date(req.query.d1)).toISOString())),
+                $lte:new Date(((new Date(req.query.d2)).toISOString()))
+              }
+            };
+      }
       break;
     case 'd':
       collection = db.collection('endesa_byDay');
@@ -124,17 +146,14 @@ router.get('/data/endesa', (req, res) => {
   }
 
   if(collection){
-    if(req.query.q){
-        q = JSON.parse("{"+req.query.q+"}");
-    }
-    else{q=null;}
-
-    collection.find(q).toArray(function(error, docs) {
+    collection.find(q,p).toArray(function(error, docs) {
       if(error){
         logger.error(error);
         res.status(400).send('Bad Request');
       }
       res.json(docs);
+      p = null;
+      q = null;
     });
   }
 });
