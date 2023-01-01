@@ -9,7 +9,7 @@
   "author": "Carles",
   "license": "ISC",
   "dependencies": {
-    "config": "^3.0.1",
+    "config": "^3.3.8",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "helmet": "^3.15.1",
